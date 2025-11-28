@@ -1,6 +1,6 @@
 # UK Debt Sustainability Analysis (as of November 2025)
 
-This repository contains a comprehensive debt sustainability analysis (DSA) for the United Kingdom, incorporating methodological corrections based on expert review.
+This repository contains a comprehensive debt sustainability analysis (DSA) for the United Kingdom.
 
 ---
 
