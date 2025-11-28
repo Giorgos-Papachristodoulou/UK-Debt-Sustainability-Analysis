@@ -1,417 +1,277 @@
-# 🇬🇧 UK Debt Sustainability Analysis
+# UK Debt Sustainability Analysis
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.XXXXXXX-blue)](https://doi.org/10.5281/zenodo.XXXXXXX)
+## Expert-Corrected Implementation (November 2025)
 
-A comprehensive, institutional-grade debt sustainability analysis framework for the United Kingdom, implementing advanced econometric methods used by the IMF, central banks, and fiscal policy institutions.
+This repository contains a comprehensive debt sustainability analysis (DSA) for the United Kingdom, incorporating methodological corrections based on expert review.
 
-<p align="center">
-  <img src="outputs/fig2_fan_chart.png" alt="UK Debt Sustainability Fan Chart" width="700">
-</p>
+---
 
-## 📋 Table of Contents
+## 📋 Overview
 
-- [Executive Summary](#-executive-summary)
-- [Key Findings](#-key-findings)
-- [Features](#-features)
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [Project Structure](#-project-structure)
-- [Methodology](#-methodology)
-- [Data Sources](#-data-sources)
-- [Outputs](#-outputs)
-- [Documentation](#-documentation)
-- [Citation](#-citation)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Acknowledgements](#-acknowledgements)
+The analysis evaluates UK public debt sustainability through multiple complementary frameworks:
 
-## 📊 Executive Summary
+1. **Econometric Testing** - Unit root, cointegration, and structural break tests
+2. **Bohn Fiscal Reaction Test** - With HAC-corrected standard errors
+3. **Debt Dynamics Decomposition** - r-g differential analysis
+4. **Monte Carlo Simulation** - MLE-calibrated fat-tailed distributions
+5. **Gross Financing Needs** - Rollover risk assessment
+6. **Scenario Analysis** - Stress testing under alternative assumptions
 
-This repository provides a complete toolkit for assessing the sustainability of UK public debt using four complementary methodological approaches:
+---
 
-1. **Bohn Fiscal Reaction Function Test** - Tests whether the government systematically responds to debt accumulation
-2. **Fiscal Space Calculation** - Estimates headroom before reaching debt limits (Ghosh et al., 2013)
-3. **Gross Financing Needs Analysis** - Assesses rollover risk against IMF thresholds
-4. **Fat-Tailed Monte Carlo Simulation** - 10,000-path stochastic projections with Student's t-distributions
-
-The analysis produces publication-ready figures, comprehensive Excel workbooks, and detailed reports suitable for academic research, policy analysis, or financial market assessment.
-
-## 🔑 Key Findings
-
-| Metric | Value | Assessment |
-|--------|-------|------------|
-| **Bohn Test β Coefficient** | -0.017 | ❌ **FAIL** - No debt-stabilising response |
-| **Fiscal Space** | 18 pp | ⚠️ Limited headroom to 114% debt limit |
-| **P(Debt > 100%)** | 40.1% | ⚠️ Substantial tail risk |
-| **VaR 99%** | 134.6% | ⚠️ Severe downside scenarios |
-| **GFN/GDP** | 10.3% avg | ✅ Below IMF 15% threshold |
-
-**Overall Verdict: MARGINALLY SUSTAINABLE** - Conditional on achieving OBR-projected surpluses, avoiding major shocks, and maintaining market confidence.
-
-### Critical Finding: Bohn Test Failure
-
-Unlike the United States (where Bohn, 1998 found positive fiscal reaction), the UK shows **no systematic debt-stabilising fiscal response**. The negative β coefficient implies sustainability depends entirely on explicit policy commitment, not historical behavioural patterns.
-
-## ✨ Features
-
-- **Canonical Econometric Tests**: Bohn (1998) fiscal reaction function with Newey-West HAC standard errors
-- **IMF-Standard Fiscal Space**: Ghosh et al. (2013) cubic reaction function methodology
-- **Fat-Tailed Distributions**: Student's t-distributions (df=5-7) capturing crisis-frequency events
-- **Gaussian Copula Dependence**: Proper correlation structure among macroeconomic shocks
-- **12 Publication-Quality Figures**: 300 DPI PNG outputs ready for journals
-- **Comprehensive Excel Workbook**: Multi-sheet analysis with conditional formatting
-- **Scenario Stress Testing**: 6 deterministic scenarios including stagflation and combined adverse
-- **Full Reproducibility**: All code, data, and parameters documented
-
-## 🚀 Installation
-
-### Prerequisites
-
-- Python 3.8 or higher
-- pip package manager
-
-### Option 1: Clone and Install
+## 🔧 Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/uk-debt-sustainability.git
-cd uk-debt-sustainability
-
-# Create virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+git clone https://github.com/your-repo/uk-dsa.git
+cd uk-dsa
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-### Option 2: Install as Package
+### Requirements
+- Python 3.9+
+- pandas >= 2.0.0
+- numpy >= 1.24.0
+- scipy >= 1.10.0
+- matplotlib >= 3.7.0
+- openpyxl >= 3.1.0
+- xlsxwriter >= 3.1.0
 
-```bash
-pip install uk-debt-sustainability
-```
+---
 
-### Dependencies
-
-```
-numpy>=1.21.0
-pandas>=1.3.0
-scipy>=1.7.0
-matplotlib>=3.4.0
-seaborn>=0.11.0
-openpyxl>=3.0.0
-statsmodels>=0.13.0
-```
-
-## 🏃 Quick Start
-
-### Run Complete Analysis
+## 🚀 Quick Start
 
 ```python
-from uk_dsa import run_full_analysis
+from src.main import run_complete_analysis
 
-# Run all analyses and generate outputs
-results = run_full_analysis(
-    output_dir='./outputs',
-    n_simulations=10000,
-    forecast_years=10
-)
-
-# Access key results
-print(f"Bohn β coefficient: {results['bohn_test']['beta']:.4f}")
-print(f"Fiscal space: {results['fiscal_space']['space_pp']:.1f} pp")
-print(f"P(Debt > 100%): {results['monte_carlo']['prob_exceed_100']:.1%}")
-```
-
-### Run Individual Components
-
-```python
-from uk_dsa import BohnTest, FiscalSpace, MonteCarloSimulation
-
-# Bohn Test
-bohn = BohnTest(data_path='data/')
-bohn_results = bohn.run_all_specifications()
-bohn.plot_results('outputs/bohn_test.png')
-
-# Fiscal Space
-fs = FiscalSpace(r=0.045, g=0.035)
-space = fs.calculate(current_debt=96.0)
-fs.plot_fiscal_space('outputs/fiscal_space.png')
-
-# Monte Carlo
-mc = MonteCarloSimulation(n_paths=10000, horizon=10, fat_tails=True)
-mc_results = mc.run()
-mc.plot_fan_chart('outputs/fan_chart.png')
-```
-
-### Command Line Interface
-
-```bash
 # Run full analysis
-python -m uk_dsa.run --output-dir ./outputs --simulations 10000
+results = run_complete_analysis()
 
-# Run specific component
-python -m uk_dsa.run --component bohn_test --output-dir ./outputs
-
-# Generate report only (using cached results)
-python -m uk_dsa.run --report-only --format docx
+# Generate all outputs
+results.generate_excel_workbook('outputs/UK_DSA_Analysis.xlsx')
+results.generate_all_figures('outputs/figures/')
 ```
+
+Or run from command line:
+
+```bash
+python -m src.run_analysis
+```
+
+---
 
 ## 📁 Project Structure
 
 ```
-uk-debt-sustainability/
-│
-├── 📂 src/uk_dsa/                 # Main package
-│   ├── __init__.py                # Package initialization
-│   ├── config.py                  # Configuration and parameters
-│   ├── data_loader.py             # Data loading utilities
-│   ├── debt_dynamics.py           # Core debt projection model
-│   ├── bohn_test.py               # Bohn fiscal reaction function
-│   ├── fiscal_space.py            # Ghosh et al. fiscal space
-│   ├── gfn_analysis.py            # Gross financing needs
-│   ├── monte_carlo.py             # Standard Monte Carlo
-│   ├── fat_tailed_mc.py           # Fat-tailed Monte Carlo
-│   ├── scenario_analysis.py       # Deterministic scenarios
-│   ├── visualizations.py          # All plotting functions
-│   ├── report_generator.py        # Report generation
-│   └── run.py                     # CLI entry point
-│
-├── 📂 data/                       # Data files
-│   ├── 📂 ons/                    # ONS Public Sector Finances
-│   ├── 📂 obr/                    # OBR forecasts
-│   ├── 📂 boe/                    # Bank of England data
-│   ├── 📂 dmo/                    # Debt Management Office
-│   └── README.md                  # Data documentation
-│
-├── 📂 outputs/                    # Generated outputs
-│   ├── 📂 figures/                # PNG figures (300 DPI)
-│   ├── 📂 tables/                 # CSV/Excel tables
-│   └── 📂 reports/                # Generated reports
-│
-├── 📂 docs/                       # Documentation
-│   ├── methodology.md             # Detailed methodology
-│   ├── api_reference.md           # API documentation
-│   ├── data_dictionary.md         # Variable definitions
-│   └── replication_guide.md       # Replication instructions
-│
-├── 📂 tests/                      # Unit tests
-│   ├── test_bohn.py
-│   ├── test_fiscal_space.py
-│   ├── test_monte_carlo.py
-│   └── test_integration.py
-│
-├── 📂 notebooks/                  # Jupyter notebooks
-│   ├── 01_data_exploration.ipynb
-│   ├── 02_bohn_test_analysis.ipynb
-│   ├── 03_monte_carlo_deep_dive.ipynb
-│   └── 04_sensitivity_analysis.ipynb
-│
-├── 📂 paper/                      # Academic paper
-│   ├── UK_DSA_Academic_Paper.docx
-│   ├── UK_DSA_Academic_Paper.md
-│   └── figures/                   # Paper figures
-│
-├── .github/                       # GitHub configuration
-│   ├── workflows/ci.yml           # CI/CD pipeline
-│   ├── ISSUE_TEMPLATE/
-│   └── PULL_REQUEST_TEMPLATE.md
-│
-├── requirements.txt               # Python dependencies
-├── setup.py                       # Package setup
-├── pyproject.toml                 # Modern Python packaging
-├── LICENSE                        # MIT License
-├── CONTRIBUTING.md                # Contribution guidelines
-├── CODE_OF_CONDUCT.md             # Code of conduct
-├── CHANGELOG.md                   # Version history
-└── README.md                      # This file
+uk_dsa_final/
+├── src/
+│   ├── __init__.py
+│   ├── config.py                 # Configuration & November 2025 Budget data
+│   ├── data_loader.py            # Historical data loading utilities
+│   ├── econometric_tests.py      # Unit root, cointegration, HAC SEs
+│   ├── bohn_test.py              # Fiscal reaction function tests
+│   ├── monte_carlo.py            # MLE-calibrated stochastic simulation
+│   ├── debt_dynamics.py          # Decomposition analysis
+│   ├── sustainability_assessment.py  # Overall assessment framework
+│   ├── visualization.py          # Publication-quality figures
+│   └── main.py                   # Main analysis orchestration
+├── outputs/
+│   ├── figures/                  # Generated visualizations
+│   ├── tables/                   # Summary tables
+│   └── data/                     # Processed data exports
+├── requirements.txt
+└── README.md
 ```
-
-## 📐 Methodology
-
-### 1. Bohn Fiscal Reaction Function Test
-
-Tests whether fiscal policy satisfies the sustainability condition β > 0:
-
-```
-pb_t = α + β·d_{t-1} + γ₁·YGAP_t + γ₂·GVAR_t + ε_t
-```
-
-Where:
-- `pb_t` = Primary balance (% GDP)
-- `d_{t-1}` = Lagged debt ratio
-- `YGAP_t` = Output gap
-- `GVAR_t` = Temporary spending deviation
-
-**Specifications implemented:**
-- Basic OLS
-- Augmented with cyclical controls
-- Non-linear (quadratic debt response)
-- Newey-West HAC standard errors
-
-### 2. Fiscal Space (Ghosh et al., 2013)
-
-Estimates debt limit from intersection of fiscal reaction curve and debt-stabilising requirement:
-
-```
-Fiscal Reaction:     pb = f(d) = α + β₁·d + β₂·d² + β₃·d³
-Debt-Stabilising:    pb* = [(r-g)/(1+g)]·d
-Debt Limit:          f(d̄) = pb*(d̄) and f'(d̄) < pb*'(d̄)
-Fiscal Space:        d̄ - d_current
-```
-
-### 3. Gross Financing Needs
-
-```
-GFN_t = Primary Deficit_t + Interest_t + Maturing Debt_t
-```
-
-Assessed against IMF thresholds:
-- **15% GDP**: Elevated risk
-- **20% GDP**: High risk
-
-### 4. Fat-Tailed Monte Carlo
-
-10,000 stochastic paths with:
-
-- **Marginal distributions**: Student's t (df: GDP=5, Inflation=5, Rates=7)
-- **Dependence structure**: Gaussian copula
-- **Correlation matrix**: Calibrated to UK historical data
-- **Dynamics**: AR(1) with automatic stabilisers
-
-**Risk measures computed:**
-- VaR (95%, 99%)
-- Expected Shortfall
-- Threshold breach probabilities
-- Distribution moments
-
-## 📊 Data Sources
-
-| Source | Data | Frequency | Series |
-|--------|------|-----------|--------|
-| **ONS** | Public Sector Finances | Monthly | PSND, PSNB, receipts, expenditure |
-| **OBR** | Economic & Fiscal Outlook | Biannual | Forecasts, fan charts |
-| **Bank of England** | Interest rates, yields | Daily/Monthly | Bank Rate, gilt yields |
-| **DMO** | Gilt market data | Daily | Issuance, redemptions, holdings |
-| **ONS** | National Accounts | Quarterly | GDP, deflators |
-
-All data are publicly available. See `data/README.md` for download instructions and data dictionary.
-
-## 📈 Outputs
-
-### Figures Generated
-
-| Figure | Description | Section |
-|--------|-------------|---------|
-| `fig1_historical_debt.png` | Historical debt/GDP 1997-2035 | 3.2 |
-| `fig2_fan_chart.png` | Monte Carlo fan chart | 5.4 |
-| `fig3_scenarios.png` | Scenario stress tests | 6.2 |
-| `fig4_decomposition.png` | Debt dynamics decomposition | Appendix |
-| `fig5_r_g_differential.png` | Interest-growth differential | Appendix |
-| `fig6_interest_burden.png` | Interest payment analysis | Appendix |
-| `fig7_debt_composition.png` | Debt by instrument/maturity | Appendix |
-| `fig8_ilg_sensitivity.png` | Index-linked gilt sensitivity | 8.2 |
-| `fig9_bohn_test.png` | Bohn test scatter/regression | 5.1 |
-| `fig10_fiscal_space.png` | Fiscal space diagram | 5.2 |
-| `fig11_gfn.png` | Gross financing needs | 5.3 |
-| `fig12_fat_tail_impact.png` | Fat-tail distribution comparison | 5.4 |
-
-### Excel Workbook Sheets
-
-- **Executive Summary**: Key metrics and verdicts
-- **Bohn Test**: Regression results and diagnostics
-- **Fiscal Space**: Scenarios and sensitivity
-- **GFN Analysis**: Annual projections and risk index
-- **Monte Carlo**: Distribution statistics and probabilities
-- **Fan Chart Data**: Percentile paths for charting
-- **Scenarios**: Stress test trajectories
-
-## 📚 Documentation
-
-Detailed documentation available in the `docs/` folder:
-
-- **[Methodology Guide](docs/methodology.md)**: Complete mathematical framework
-- **[API Reference](docs/api_reference.md)**: Function and class documentation
-- **[Data Dictionary](docs/data_dictionary.md)**: Variable definitions and sources
-- **[Replication Guide](docs/replication_guide.md)**: Step-by-step replication instructions
-
-## 📝 Citation
-
-If you use this code in academic work, please cite:
-
-```bibtex
-@software{uk_debt_sustainability_2025,
-  author = {[Your Name]},
-  title = {UK Debt Sustainability Analysis: A Comprehensive Framework},
-  year = {2025},
-  publisher = {GitHub},
-  url = {https://github.com/yourusername/uk-debt-sustainability},
-  version = {1.0.0}
-}
-```
-
-For the accompanying paper:
-
-```bibtex
-@article{author_uk_debt_2025,
-  title = {Debt Sustainability in the United Kingdom: A Comprehensive Assessment 
-           Using Advanced Econometric Methods},
-  author = {[Your Name]},
-  journal = {Imperial College Business School Working Paper},
-  year = {2025},
-  month = {November}
-}
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Ways to Contribute
-
-- 🐛 Report bugs and issues
-- 💡 Suggest new features or methodologies
-- 📖 Improve documentation
-- 🔧 Submit pull requests
-- 📊 Add data sources or countries
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgements
-
-### Methodological References
-
-- **Bohn, H. (1998)** - "The Behavior of U.S. Public Debt and Deficits" - *Quarterly Journal of Economics*
-- **Ghosh, A.R. et al. (2013)** - "Fiscal Fatigue, Fiscal Space and Debt Sustainability" - *Economic Journal*
-- **IMF (2013)** - "Staff Guidance Note for Public Debt Sustainability Analysis"
-- **Blanchard, O.J. (1990)** - "Suggestions for a New Set of Fiscal Indicators" - *OECD Working Papers*
-
-### Data Providers
-
-- Office for National Statistics (ONS)
-- Office for Budget Responsibility (OBR)
-- Bank of England
-- UK Debt Management Office (DMO)
-
-### Institutional Context
-
-This analysis was developed following methodologies employed by:
-- International Monetary Fund (IMF)
-- European Commission
-- HM Treasury
-- Bank of England Financial Stability Division
 
 ---
 
-<p align="center">
-  <b>⭐ Star this repository if you find it useful! ⭐</b>
-</p>
+## 📊 Key Findings
 
-<p align="center">
-  Made with 📊 for fiscal policy research
-</p>
+### Bohn Fiscal Reaction Test
+
+| Specification | β (debt response) | HAC t-stat | Result |
+|---------------|-------------------|------------|--------|
+| Basic         | -0.099            | -1.57      | ❌ FAIL |
+| Augmented     | -0.085            | -1.42      | ❌ FAIL |
+| Non-linear    | Negative          | -          | ❌ FAIL |
+
+**Interpretation**: The UK government has historically **NOT** exhibited debt-stabilizing fiscal behavior. A negative β means higher debt is associated with *worse* primary balances, not better.
+
+### Monte Carlo Simulation (10,000 simulations, 10-year horizon)
+
+| Metric | OBR Baseline | Fiscal Reaction |
+|--------|--------------|-----------------|
+| Mean Terminal Debt | 102.5% | 162.8% |
+| P(>100% terminal) | 55.8% | 100.0% |
+| VaR 95% | 122.3% | 189.7% |
+| VaR 99% | 137.4% | 219.7% |
+
+**Key insight**: If fiscal behavior reverts to historical patterns (negative Bohn β), debt spirals are virtually certain.
+
+### Fat-Tail Impact
+
+- MLE-estimated degrees of freedom: 2.1-2.3 (much fatter than assumed 5-7)
+- GDP-interest correlation: +0.40 (procyclical, not -0.30 countercyclical)
+- Fat tails add ~9pp to P(>100%) vs. normal distribution
+
+---
+
+## ⚠️ Expert Corrections Applied
+
+This codebase incorporates corrections from methodological review:
+
+| Issue | Original | Corrected |
+|-------|----------|-----------|
+| Standard errors | OLS only | Newey-West HAC |
+| Sample size | 49 obs (stated) | 32 obs (actual) |
+| Distribution params | Assumed df=5-7 | MLE-estimated df≈2-3 |
+| Correlations | Literature values | UK-estimated from data |
+| Fiscal space | Ghosh single-country | **REMOVED** (invalid) |
+| Non-linear constant | Missing | Added |
+
+---
+
+## 📈 Generated Outputs
+
+### Figures (12 publication-quality visualizations)
+
+1. `fan_chart.png` - Monte Carlo debt path projections
+2. `debt_decomposition.png` - Historical dynamics breakdown
+3. `bohn_scatter.png` - Fiscal reaction function
+4. `r_g_differential.png` - Interest-growth gap
+5. `gfn_analysis.png` - Gross financing needs
+6. `scenario_comparison.png` - Stress test results
+7. `fat_tail_comparison.png` - Normal vs. Student-t distributions
+8. `terminal_distribution.png` - Histogram of terminal debt
+9. `debt_composition.png` - Gilt portfolio structure
+10. `ilg_sensitivity.png` - Inflation-linked exposure
+11. `fiscal_rules_history.png` - Timeline of abandoned rules
+12. `sustainability_dashboard.png` - Summary assessment
+
+### Excel Workbook
+
+Comprehensive workbook with sheets for:
+- Executive Summary
+- Bohn Test Results
+- Debt Dynamics
+- Monte Carlo Statistics
+- GFN Analysis
+- Scenario Comparison
+- Raw Data
+
+---
+
+## 🔬 Methodology
+
+### Econometric Framework
+
+```
+1. Unit Root Testing
+   - ADF test: H₀ = unit root
+   - KPSS test: H₀ = stationarity
+   - Combined inference for I(d) determination
+
+2. Cointegration (Engle-Granger)
+   - Two-step residual-based test
+   - EG-augmented critical values
+
+3. Structural Break Detection
+   - Chow test at known dates (1997, 2008, 2020)
+   - Sup-Wald for unknown breaks
+
+4. HAC Standard Errors
+   - Newey-West with Bartlett kernel
+   - Automatic bandwidth selection
+```
+
+### Bohn Test Specification
+
+```
+Basic:      pb_t = α + β·d_{t-1} + ε_t
+Augmented:  pb_t = α + β·d_{t-1} + γ₁·YGAP + γ₂·GVAR + ε_t
+Non-linear: pb_t = α + β₁·d + β₂·d² + γ·YGAP + ε_t
+Dynamic:    pb_t = α + ρ·pb_{t-1} + β·d_{t-1} + γ·YGAP + ε_t
+```
+
+Sustainability requires β > 0 and statistically significant.
+
+### Monte Carlo Simulation
+
+```python
+# Shock generation with fat tails
+gdp_shock = t.rvs(df=3.0, loc=0, scale=σ_g)
+rate_shock = t.rvs(df=4.0, loc=0, scale=σ_r)
+
+# Cholesky decomposition for correlation
+L = cholesky(Σ)
+correlated_shocks = L @ independent_shocks
+
+# Debt dynamics
+d_{t+1} = (1 + r_t - g_t)/(1 + g_t) · d_t - pb_t + sfa_t
+```
+
+---
+
+## 📚 Data Sources
+
+| Data | Source | Frequency |
+|------|--------|-----------|
+| Public Sector Net Debt | ONS | Monthly |
+| Primary Balance | ONS/OBR | Annual |
+| Gilt Yields | DMO/BoE | Daily |
+| GDP | ONS | Quarterly |
+| Inflation (RPI/CPI) | ONS | Monthly |
+| Budget Forecasts | OBR EFO March 2025 | - |
+
+---
+
+## 🎯 Sustainability Verdict
+
+### Operational Definition
+
+Debt is **SUSTAINABLE** if:
+1. Debt/GDP stabilizes or declines with P > 50%
+2. Government retains market access under stress
+3. Primary balance achieves debt-stabilizing level
+4. Fiscal reaction to debt is positive (Bohn β > 0)
+
+### UK Assessment
+
+| Criterion | Status | Notes |
+|-----------|--------|-------|
+| Fiscal reaction | ❌ FAIL | β = -0.099 (negative) |
+| Debt path | ❌ FAIL | P(>100%) = 55.8% |
+| Primary balance | ⚠️ IF achieved | pb = 1.4% ≥ pb* = 0.9% |
+| Financing needs | ✅ PASS | GFN = 10.3% < 15% |
+
+**Overall: CONDITIONALLY SUSTAINABLE**
+
+Sustainable *only if* policy commitments are achieved. Historical behavior provides NO evidence of automatic stabilization.
+
+---
+
+## 📖 References
+
+- Bohn, H. (1998). "The Behavior of U.S. Public Debt and Deficits." *Quarterly Journal of Economics*.
+- Blanchard, O. (2019). "Public Debt and Low Interest Rates." *American Economic Review*.
+- IMF (2022). *Staff Guidance Note on the Sovereign Risk and Debt Sustainability Framework*.
+- OBR (2025). *Economic and Fiscal Outlook - March 2025*.
+- HM Treasury (2025). *Autumn Budget 2024 / Spring Statement 2025*.
+
+---
+
+## 📝 License
+
+MIT License - See LICENSE file for details.
+
+---
+
+## 👥 Contributors
+
+UK DSA Research Project - Imperial College London UROP
+
+---
+
+*Last updated: November 2025*
