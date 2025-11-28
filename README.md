@@ -116,21 +116,6 @@ uk_dsa_final/
 
 ---
 
-## ⚠️ Expert Corrections Applied
-
-This codebase incorporates corrections from methodological review:
-
-| Issue | Original | Corrected |
-|-------|----------|-----------|
-| Standard errors | OLS only | Newey-West HAC |
-| Sample size | 49 obs (stated) | 32 obs (actual) |
-| Distribution params | Assumed df=5-7 | MLE-estimated df≈2-3 |
-| Correlations | Literature values | UK-estimated from data |
-| Fiscal space | Ghosh single-country | **REMOVED** (invalid) |
-| Non-linear constant | Missing | Added |
-
----
-
 ## 📈 Generated Outputs
 
 ### Figures (12 publication-quality visualizations)
