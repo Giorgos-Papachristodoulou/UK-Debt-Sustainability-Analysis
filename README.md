@@ -13,7 +13,7 @@ This paper presents a comprehensive debt sustainability analysis for the United 
 ## Quick Start
 ```bash
 # Clone the repository
-git clone [https://github.com/yourusername/uk-debt-sustainability-analysis.git](https://github.com/Giorgos-Papachristodoulou/UK-Debt-Sustainability-Analysis
+git clone (https://github.com/Giorgos-Papachristodoulou/UK-Debt-Sustainability-Analysis
 )
 cd uk-debt-sustainability-analysis
 
