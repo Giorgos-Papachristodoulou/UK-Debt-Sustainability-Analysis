@@ -69,6 +69,4 @@ python src/visualization.py
 This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
 
 ## Contact
-For questions about the code: [g.papachristodoulou@outlook.com or gp422@ic.ac.uk]
-
-For questions about the code: [your.email@imperial.ac.uk]
+For questions about the code: [g.papachristodoulou@outlook.com] or [gp422@ic.ac.uk]
